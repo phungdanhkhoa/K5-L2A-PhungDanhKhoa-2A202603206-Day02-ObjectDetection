@@ -26,17 +26,18 @@ Chi tiết guideline cá nhân xem tại: [GUIDELINE_MINI.md](../../GUIDELINE_MI
 
 - **Số file nhãn train:** Đủ 50/50 file (`drive_001.txt` đến `drive_050.txt`) tương ứng 50 ảnh train.
 - **Kết quả checker (`tools/check_yolo_labels.py`):** ĐẠT cấu trúc 50/50 file hợp lệ (0 lỗi định dạng, 0 lỗi tọa độ vượt biên, 0 lỗi class ID).
-- **Phân bố 698 bounding box trong tập train:**
-  - Lớp `0` (`car`): 563 boxes (80.7%)
-  - Lớp `1` (`truck`): 21 boxes (3.0%)
-  - Lớp `2` (`bus`): 19 boxes (2.7%)
-  - Lớp `3` (`van`): 95 boxes (13.6%)
+- **Phân bố 735 bounding box trong tập train sau khi hoàn thiện và tinh chỉnh (Refined Annotation):**
+  - Lớp `0` (`car`): 568 boxes (77.3%)
+  - Lớp `1` (`truck`): 22 boxes (3.0%)
+  - Lớp `2` (`bus`): 88 boxes (12.0%)
+  - Lớp `3` (`van`): 57 boxes (7.8%)
 - **Danh sách 10 ảnh đã rà soát trực quan bằng mắt:**
-  `drive_001.jpg`, `drive_005.jpg`, `drive_010.jpg`, `drive_015.jpg`, `drive_020.jpg`, `drive_025.jpg`, `drive_030.jpg`, `drive_035.jpg`, `drive_040.jpg`, `drive_048.jpg`.
+  `drive_001.jpg`, `drive_005.jpg`, `drive_009.jpg`, `drive_012.jpg`, `drive_020.jpg`, `drive_024.jpg`, `drive_026.jpg`, `drive_030.jpg`, `drive_039.jpg`, `drive_048.jpg`.
 - **Lỗi phát hiện khi rà soát và cách xử lý:**
-  1. *Lỗi lẫn lộn class giữa `bus` và `van`:* Ban đầu các dòng xe van/minivan (như dạng Transit, HiAce) bị nhận diện nhầm thành xe buýt; đã được phân loại lại chuẩn xác theo tiêu chí kích thước và hình dáng unibody sang lớp `3` (`van`).
-  2. *Lỗi box ngoài biên:* Một số xe ở sát lề mép ảnh được căn chỉnh lại tọa độ để chạm chính xác biên `0.0` hoặc `1.0`, loại bỏ lỗi vượt biên ảnh.
-  3. *Lọc vật thể quá nhỏ:* Loại bỏ các box nhiễu ở hậu cảnh xa có diện tích $< 0.0008$ không thể nhận diện chắc chắn loại xe.
+  1. *Lỗi gán nhầm xe bus thành van:* Phát hiện nhiều xe buýt nội đô, xe buýt khớp nối dài (articulated buses), xe khách liên tỉnh đường dài và xe buýt 2 tầng (double-decker) ở các ảnh như `drive_008`, `drive_009`, `drive_012`, `drive_024`, `drive_026`, `drive_029`, `drive_038`, `drive_039`, `drive_048` bị gán nhầm sang lớp `3` (`van`). Toàn bộ đã được phân loại chuẩn xác về lớp `2` (`bus`).
+  2. *Lỗi lẫn lộn xe van, xe tải và xe con:* Chuẩn hóa các dòng microvan (Wuling Sunshine, Kei van), minivan chở khách (Buick GL8) và panel van giao hàng (Ford Transit, Jinbei) về đúng lớp `3` (`van`), phân biệt rạch ròi với xe tải thùng rời (`truck` = 1) và SUV/sedan (`car` = 0).
+  3. *Lỗi box trùng lặp (duplicate boxes) và box rác (ghost boxes):* Loại bỏ 14 cặp box trùng đè lên nhau có IoU > 0.60 với class xung đột; loại bỏ các box rác gán nhầm lên mặt đường trống, dải phân cách hoặc nhà chờ xe buýt (`drive_049`).
+  4. *Bổ sung đầy đủ vật thể (completeness):* Bổ sung hơn 35 xe bị bỏ sót (xe đỗ ven đường, xe trong hàng đợi qua ngã tư, xe di chuyển ở hậu cảnh) đảm bảo độ phủ cao nhất cho mô hình học tập.
 - **Commit khóa nhãn ban đầu (CP4 Freeze):** `89a8d27`
 
 ---
