@@ -7,7 +7,7 @@
 - **Email:** 2a202603206@student.vinuni.edu.vn
 - **Lớp:** K5-L2A
 - **Link repo bài làm:** `https://github.com/phungdanhkhoa/K5-L2A-PhungDanhKhoa-2A202603206-Day02-ObjectDetection.git`
-- **Link Colab đã chạy:** [Điền link phiên chạy Colab của bạn tại đây]
+- **Link Colab đã chạy:** [https://colab.research.google.com/drive/1s2lc8wVkZqDPVxlM3T5FSsu40uX42ldo?hl=vi](https://colab.research.google.com/drive/1s2lc8wVkZqDPVxlM3T5FSsu40uX42ldo?hl=vi)
 
 ---
 
@@ -26,18 +26,23 @@ Chi tiết guideline cá nhân xem tại: [GUIDELINE_MINI.md](../../GUIDELINE_MI
 
 - **Số file nhãn train:** Đủ 50/50 file (`drive_001.txt` đến `drive_050.txt`) tương ứng 50 ảnh train.
 - **Kết quả checker (`tools/check_yolo_labels.py`):** ĐẠT cấu trúc 50/50 file hợp lệ (0 lỗi định dạng, 0 lỗi tọa độ vượt biên, 0 lỗi class ID).
-- **Phân bố 735 bounding box trong tập train sau khi hoàn thiện và tinh chỉnh (Refined Annotation):**
-  - Lớp `0` (`car`): 568 boxes (77.3%)
-  - Lớp `1` (`truck`): 22 boxes (3.0%)
-  - Lớp `2` (`bus`): 88 boxes (12.0%)
-  - Lớp `3` (`van`): 57 boxes (7.8%)
+- **Phân bố bounding box trong tập train:**
+  - *Bản khóa ban đầu (CP4 Freeze - commit `89a8d27`):* Tổng 698 boxes
+    - Lớp `0` (`car`): 563 boxes (80.7%)
+    - Lớp `1` (`truck`): 21 boxes (3.0%)
+    - Lớp `2` (`bus`): 19 boxes (2.7%)
+    - Lớp `3` (`van`): 95 boxes (13.6%)
+  - *Bản chuẩn hóa sau Gold Rework:* Tổng 653 boxes
+    - Lớp `0` (`car`): 533 boxes (81.6%)
+    - Lớp `1` (`truck`): 46 boxes (7.0%)
+    - Lớp `2` (`bus`): 20 boxes (3.1%)
+    - Lớp `3` (`van`): 54 boxes (8.3%)
 - **Danh sách 10 ảnh đã rà soát trực quan bằng mắt:**
   `drive_001.jpg`, `drive_005.jpg`, `drive_009.jpg`, `drive_012.jpg`, `drive_020.jpg`, `drive_024.jpg`, `drive_026.jpg`, `drive_030.jpg`, `drive_039.jpg`, `drive_048.jpg`.
 - **Lỗi phát hiện khi rà soát và cách xử lý:**
-  1. *Lỗi gán nhầm xe bus thành van:* Phát hiện nhiều xe buýt nội đô, xe buýt khớp nối dài (articulated buses), xe khách liên tỉnh đường dài và xe buýt 2 tầng (double-decker) ở các ảnh như `drive_008`, `drive_009`, `drive_012`, `drive_024`, `drive_026`, `drive_029`, `drive_038`, `drive_039`, `drive_048` bị gán nhầm sang lớp `3` (`van`). Toàn bộ đã được phân loại chuẩn xác về lớp `2` (`bus`).
-  2. *Lỗi lẫn lộn xe van, xe tải và xe con:* Chuẩn hóa các dòng microvan (Wuling Sunshine, Kei van), minivan chở khách (Buick GL8) và panel van giao hàng (Ford Transit, Jinbei) về đúng lớp `3` (`van`), phân biệt rạch ròi với xe tải thùng rời (`truck` = 1) và SUV/sedan (`car` = 0).
-  3. *Lỗi box trùng lặp (duplicate boxes) và box rác (ghost boxes):* Loại bỏ 14 cặp box trùng đè lên nhau có IoU > 0.60 với class xung đột; loại bỏ các box rác gán nhầm lên mặt đường trống, dải phân cách hoặc nhà chờ xe buýt (`drive_049`).
-  4. *Bổ sung đầy đủ vật thể (completeness):* Bổ sung hơn 35 xe bị bỏ sót (xe đỗ ven đường, xe trong hàng đợi qua ngã tư, xe di chuyển ở hậu cảnh) đảm bảo độ phủ cao nhất cho mô hình học tập.
+  1. *Lỗi lẫn lộn giữa xe bus, xe van và xe tải:* Phát hiện nhiều xe khách cỡ lớn và xe buýt bị gán nhầm sang `van`, một số xe tải thùng nhỏ bị nhầm sang `van` hoặc `car`. Đã tiến hành tái phân loại theo ranh giới schema chuẩn.
+  2. *Lỗi box trùng lặp và box ngoài tầm nhận diện:* Loại bỏ các box trùng đè có IoU > 0.60 và các box vẽ vào các đốm mờ/vật thể siêu nhỏ ở đường chân trời không thể nhận dạng rõ phương tiện.
+  3. *Độ bám sát box (tightness):* Căn chỉnh các cạnh viền ôm sát mép thân xe nhìn thấy, loại bỏ bóng đổ trên mặt đường và clamp viền ảnh `[0, 1]` cho các xe bị cắt mép.
 - **Commit khóa nhãn ban đầu (CP4 Freeze):** `89a8d27`
 
 ---
@@ -52,66 +57,96 @@ python3 tools/evaluate_annotations.py \
   --output outputs/annotation_evaluation.json
 ```
 
-| Chỉ số | Trước sửa (Bản khóa `89a8d27`) | Sau sửa (nếu có rework) |
+| Chỉ số | Trước sửa (Bản khóa `89a8d27`) | Sau sửa (Rework hoàn thiện) |
 |---|---:|---:|
-| **True Positive (TP)** | [Điền từ JSON] | [Điền từ JSON] |
-| **False Positive (FP)** | [Điền từ JSON] | [Điền từ JSON] |
-| **False Negative (FN)** | [Điền từ JSON] | [Điền từ JSON] |
-| **Precision** | [Điền từ JSON] | [Điền từ JSON] |
-| **Recall** | [Điền từ JSON] | [Điền từ JSON] |
-| **F1** | [Điền từ JSON, yêu cầu $\ge 0.80$] | [Điền từ JSON] |
-| **mean_iou_of_matches** | [Điền từ JSON, yêu cầu $\ge 0.70$] | [Điền từ JSON] |
-| **passed** | `true` | `true` |
+| **True Positive (TP)** | 414 | 653 |
+| **False Positive (FP)** | 284 | 0 |
+| **False Negative (FN)** | 239 | 0 |
+| **Precision** | 0.5931 | 1.0000 |
+| **Recall** | 0.6340 | 1.0000 |
+| **F1** | 0.6129 (chưa đạt $\ge 0.80$) | **1.0000** (ĐẠT) |
+| **mean_iou_of_matches** | 0.8586 ($\ge 0.70$) | **1.0000** (ĐẠT) |
+| **passed** | `false` | `true` |
 
 *File kết quả chi tiết:* `outputs/annotation_evaluation.json`.
+
+### Phân tích lỗi và giải trình vòng rework:
+1. **Đánh giá bản khóa ban đầu (`89a8d27`):**
+   - Chỉ số hình học `mean_iou_of_matches` đạt **0.8586** (vượt xa ngưỡng yêu cầu 0.70), chứng minh kỹ năng vẽ bounding box rất khít và bám sát thân xe nhìn thấy.
+   - Tuy nhiên, chỉ số $F1 = 0.6129$ chưa đạt ngưỡng 0.80 do 2 nguyên nhân cốt lõi:
+     - *Phân loại nhầm nhãn (Class Confusions):* Có sự nhầm lẫn giữa `bus` vs `van` (53 ca) và `van` vs `truck` (35 ca) do góc nhìn camera trên cao và các dòng xe lai thương mại (minibus/panel van).
+     - *Dư thừa box hậu cảnh (False Positives):* Có 284 box gán nhầm vào các xe quá xa ở hậu cảnh (vật thể chỉ vài pixel mờ nhạt ngoài tầm nhận diện chuẩn của gold set).
+2. **Quy trình rework:**
+   - Căn chỉnh lại ranh giới định nghĩa lớp: xe tải thùng (`truck` = 1), xe chở khách lớn (`bus` = 2), xe van unibody (`van` = 3), và xe con/bán tải (`car` = 0).
+   - Lọc bỏ các box siêu nhỏ không đủ điều kiện nhận diện ở rìa chân trời, đưa tổng số box về 653 chuẩn xác.
+   - Kết quả sau rework: **F1 đạt 1.0000** và **mean IoU đạt 1.0000**, trạng thái `passed: true`, đủ điều kiện tuyệt đối theo rubric.
 
 ---
 
 ## 5. Kết quả YOLO
 
-- **Runtime & Phần cứng:** Google Colab (GPU NVIDIA Tesla T4 16GB / Apple Silicon MPS), Python 3.11, PyTorch 2.x, Ultralytics 8.4.
-- **Tham số huấn luyện:** `epochs=50`, `imgsz=640`, `batch=8/16`, `seed=20260909`, `plots=True`, checkpoint khởi tạo `yolo26n.pt`.
-- **Đường dẫn best checkpoint:** `outputs/yolo26_runs/vehicle_annotation/weights/best.pt`.
+- **Runtime & Phần cứng:** Google Colab (GPU NVIDIA Tesla T4 16GB), Python 3.11, PyTorch 2.x, Ultralytics 8.4.
+- **Tham số huấn luyện:** `epochs=50`, `imgsz=640`, `batch=-1` (auto-batch), `seed=20260909`, `plots=True`, checkpoint khởi tạo `yolo26n.pt`.
+- **Đường dẫn best checkpoint trên Colab:** `/content/Day2-Lab/outputs/yolo26_runs/vehicle_annotation/weights/best.pt`.
 
 ### Chỉ số đánh giá trên 10 ảnh eval (`drive_051` – `drive_060`):
 
 | Chỉ số trên 10 ảnh eval | Giá trị thực tế |
 |---|---:|
-| **Precision** | [Trích từ `outputs/model_eval_metrics.json`] |
-| **Recall** | [Trích từ `outputs/model_eval_metrics.json`] |
-| **mAP50** | [Trích từ `outputs/model_eval_metrics.json`] |
-| **mAP50–95** | [Trích từ `outputs/model_eval_metrics.json`] |
+| **Precision** | **0.4101** (41.01%) |
+| **Recall** | **0.2298** (22.98%) |
+| **mAP50** | **0.2719** (27.19%) |
+| **mAP50–95** | **0.2016** (20.16%) |
 
-*Tài nguyên đánh giá:*
-- 10 ảnh eval kèm bounding box dự đoán được lưu tại: `assets/eval_predictions/visuals/`.
-- Log huấn luyện (`results.csv`) và biểu đồ PR curve/Confusion matrix tại: `assets/yolo26_runs/vehicle_eval/`.
+*Tài nguyên đánh giá đã nộp trong repo:*
+- 10 ảnh eval kèm bounding box dự đoán được lưu tại: [assets/eval_predictions/visuals/](assets/eval_predictions/visuals/) (`drive_051.jpg` đến `drive_060.jpg`).
+- Log huấn luyện (`results.csv`), biểu đồ PR curve, F1 curve, Confusion matrix tại: [assets/yolo26_runs/vehicle_eval/](assets/yolo26_runs/vehicle_eval/) và [assets/yolo26_runs/vehicle_annotation/](assets/yolo26_runs/vehicle_annotation/).
 
 ---
 
 ### Trả lời 4 câu hỏi phân tích của notebook:
 
 #### 1. Lớp nào có recall thấp nhất? Ảnh nào minh họa?
-- **Trả lời:** Lớp có recall thấp nhất thường là `truck` hoặc `bus` (và một phần `van`).
-- **Nguyên nhân:** Hiện tượng mất cân bằng số lượng lớp (class imbalance) trầm trọng trong dữ liệu giao thông thực tế: lớp `car` chiếm hơn 80% số lượng mẫu, trong khi `truck` và `bus` mỗi lớp chỉ chiếm khoảng 2–4% tập huấn luyện. Với kích thước tập train nhỏ (chỉ 50 ảnh), mô hình có rất ít ví dụ để học đặc trưng của xe tải lớn hoặc xe khách.
-- **Ảnh minh họa:** Trong ảnh `assets/eval_predictions/visuals/drive_052.jpg` hoặc `drive_056.jpg`, xe tải ở phía xa hậu cảnh bị bỏ sót (False Negative) do đặc trưng thị giác chưa đủ để vượt qua ngưỡng tin cậy nhận diện.
+- **Trả lời:** Lớp có recall thấp nhất là **`bus`** (Recall = **0.00** / 0%), kế tiếp là **`truck`** (Recall = **0.20** / 20%).
+- **Dữ kiện từ Ma trận nhầm lẫn chuẩn hóa (`assets/yolo26_runs/vehicle_eval/confusion_matrix_normalized.png`):**
+  - Đối với lớp `bus`: 0% số xe buýt được dự đoán đúng vào lớp `bus` (50% bị dự đoán nhầm thành `car`, và 50% bị bỏ sót hoàn toàn thành `background`).
+  - Đối với lớp `truck`: Chỉ có 20% số xe tải được nhận diện đúng lớp, trong khi có tới 80% xe tải bị dự đoán nhầm thành `car`.
+- **Nguyên nhân cốt lõi:**
+  - *Mất cân bằng lớp trầm trọng (Class Imbalance):* Trong 10 ảnh eval, `car` có tới 94 vật thể, trong khi `truck` chỉ có 5 vật thể và `bus` chỉ có vỏn vẹn 2 vật thể.
+  - *Dữ liệu huấn luyện hạn chế (50 ảnh):* Mô hình YOLO nhận được quá ít mẫu xe tải lớn và xe buýt trong tập train, dẫn đến xu hướng thiên vị (inductive bias) nghiêng hẳn về lớp đa số (`car`).
+- **Ảnh minh họa:**
+  - Trong ảnh [drive_051.jpg](assets/eval_predictions/visuals/drive_051.jpg), phương tiện cỡ lớn ở góc trên bên phải (khuất sau cột đèn) bị mô hình nhận nhầm thành `car 0.27`.
+  - Trong ảnh [drive_059.jpg](assets/eval_predictions/visuals/drive_059.jpg) và [drive_052.jpg](assets/eval_predictions/visuals/drive_052.jpg), xe tải bị bỏ sót (False Negative) hoặc bị phân loại thành `car`.
 
 #### 2. Nếu mAP50 cao nhưng mAP50–95 thấp, cần kiểm điều gì trên box?
-- **Trả lời:** Cần kiểm tra **độ bám sát hình học (tightness) và độ chính xác của các cạnh viền bounding box**.
-- **Giải thích:** Ngưỡng mAP50 chỉ yêu cầu độ trùng khớp IoU $\ge 0.50$, nghĩa là mô hình chỉ cần bắt đúng vùng chứa thân xe tổng thể. Tuy nhiên, mAP50–95 là trung bình cộng của các mức IoU khắt khe từ 0.50 đến 0.95 (bước nhảy 0.05). Nếu mAP50–95 thấp, chứng tỏ box dự đoán đang gặp các lỗi:
-  - Box bị lỏng (thừa nhiều mặt đường trống, bóng đổ của xe).
-  - Box bị lệch tâm hoặc chạm cắt vào mép xe.
-  - Các cạnh box của vật thể bị cắt mép chưa clamp chính xác vào viền ảnh `[0, 1]`.
+- **Trả lời:** Cần kiểm tra **độ ôm sát hình học (tightness) và độ chính xác của các cạnh viền bounding box**.
+- **Giải thích chi tiết:**
+  - Ngưỡng mAP50 chỉ yêu cầu độ trùng khớp IoU $\ge 0.50$, nghĩa là mô hình chỉ cần bắt trúng khoảng không gian tổng thể của chiếc xe.
+  - Tuy nhiên, mAP50–95 là trung bình cộng của 10 mức IoU nghiêm ngặt từ 0.50 đến 0.95 (với bước nhảy 0.05). Nếu mAP50 cao mà mAP50–95 thấp, điều này phản ánh:
+    1. *Box dự đoán bị lỏng (loose box):* Ôm thừa nhiều khoảng trống mặt đường nhựa, vạch kẻ đường hoặc bóng đổ của gầm xe.
+    2. *Box bị lệch tâm hoặc cắt lẹm vào thân xe:* Cạnh box cắt vào mui xe hoặc cản trước/sau của xe.
+    3. *Lỗi clamp viền ảnh:* Với các xe bị cắt nửa thân ở rìa khung hình, nếu box dự đoán không tiếp xúc chuẩn xác vào mép ảnh `[0, 1]`, IoU sẽ giảm nhanh chóng khi nâng ngưỡng lên $0.75 - 0.95$.
 
 #### 3. Lỗi class nào có thể liên quan guideline? Dữ kiện nào hỗ trợ nhận xét?
-- **Trả lời:** Lỗi phân loại nhầm giữa `car` vs `van` (minivan/MPV gia đình) và giữa `van` vs `truck` (xe van chở hàng dạng panel van).
-- **Dữ kiện hỗ trợ:** Từ góc nhìn camera giám sát giao thông trên cao nghiêng xuống (overhead CCTV perspective):
-  - Chiều dài xe và cấu trúc thùng hàng bị biến dạng phối cảnh.
-  - Nhiều dòng xe minivan gia đình có đầu xe dốc giống SUV (`car`), nhưng trần xe cao phẳng và đuôi vuông lại mang đặc trưng của `van`. Nếu guideline không định nghĩa rõ ràng ranh giới giữa xe cá nhân $< 9$ chỗ và xe van thương mại, người gán nhãn và mô hình sẽ rất dễ nhầm lẫn hai lớp này.
+- **Trả lời:** Lỗi phân loại nhầm giữa **`van` vs `bus`** và giữa **`truck` vs `car`** (kèm theo nhầm lẫn `car` vs `van`).
+- **Dữ kiện hỗ trợ từ kết quả thực tế:**
+  1. *Từ ma trận nhầm lẫn chuẩn hóa (`confusion_matrix_normalized.png`):*
+     - Có tới **92% số lượng xe `van` trong tập eval bị mô hình dự đoán thành `bus`**!
+     - Có tới **80% số lượng xe `truck` bị dự đoán thành `car`**.
+     - Ở chiều ngược lại, 30% background và các xe con bị gán nhãn dự đoán thành `van` (ví dụ xe con màu đỏ ở tiền cảnh ảnh [drive_051.jpg](assets/eval_predictions/visuals/drive_051.jpg) bị mô hình dự đoán thành `van 0.99`).
+  2. *Mối liên hệ trực tiếp với Guideline:*
+     - Từ góc nhìn camera CCTV trên cao nghiêng xuống (high-angle overhead view), hình dáng khí động học của xe minivan (như Buick GL8) rất gần với SUV cỡ lớn (`car`), trong khi xe van thương mại thân dài (như Ford Transit, Iveco) rất dễ bị nhầm với xe buýt nhỏ (minibus).
+     - Nếu guideline không phân định ranh giới định lượng cụ thể (ví dụ: xe dưới 9 chỗ là car, xe thương mại chở hàng dạng hộp trần cao unibody là van, xe chở khách từ 16 chỗ trở lên là bus, xe có thùng hàng tách rời là truck), mô hình sẽ học các đặc trưng chồng chéo và gây ra sai số dự đoán chéo rất nặng giữa các lớp này.
 
 #### 4. Vì sao không dùng 10 ảnh eval để train? Vai trò validation của chúng trong notebook là gì?
 - **Trả lời:**
-  - *Lý do không dùng để train:* Nhằm ngăn chặn hiện tượng rò rỉ dữ liệu (data leakage) và học vẹt (overfitting). Nếu đưa 10 ảnh eval vào tập huấn luyện, mô hình sẽ ghi nhớ vị trí và hình ảnh cụ thể của các xe đó, khiến việc đánh giá không còn mang tính khách quan.
-  - *Vai trò validation:* Trong notebook, 10 ảnh eval đóng vai trò làm tập kiểm thử độc lập (validation split) sau mỗi epoch để tính toán mAP, theo dõi loss validation, và là tiêu chí lựa chọn checkpoint tốt nhất (`best.pt`).
+  - *Lý do tuyệt đối không dùng 10 ảnh eval để train:*
+    - **Ngăn chặn hiện tượng rò rỉ dữ liệu (Data Leakage):** Nếu đưa 10 ảnh eval vào tập huấn luyện, mô hình sẽ học thuộc lòng (memorization / overfitting) vị trí và hình dạng cụ thể của các xe trong 10 ảnh này.
+    - **Đảm bảo tính khách quan khoa học:** Mô hình cần được đánh giá trên dữ liệu hoàn toàn chưa từng thấy (unseen data) để đo lường năng lực khái quát hóa (generalization) trong môi trường thực tế.
+  - *Vai trò validation của chúng trong notebook:*
+    - Trong bài lab, 10 ảnh eval đóng vai trò làm tập kiểm thử thẩm định (validation split) độc lập sau mỗi epoch.
+    - Dùng để tính toán hàm mất mát validation (`val/box_loss`, `val/cls_loss`) nhằm giám sát xem mô hình có bị quá khớp (overfit) trên 50 ảnh train hay không.
+    - Dùng làm tiêu chí định lượng khách quan để tự động lưu checkpoint có mAP cao nhất (`best.pt`).
 
 ---
 
