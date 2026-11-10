@@ -94,10 +94,10 @@ python3 tools/evaluate_annotations.py \
 
 | Chỉ số trên 10 ảnh eval | Giá trị thực tế |
 |---|---:|
-| **Precision** | **0.4538** (45.38%) |
-| **Recall** | **0.5263** (52.63%) |
-| **mAP50** | **0.4805** (48.05%) |
-| **mAP50–95** | **0.2977** (29.77%) |
+| **Precision** | **0.7029** (70.29%) |
+| **Recall** | **0.5209** (52.09%) |
+| **mAP50** | **0.6306** (63.06%) |
+| **mAP50–95** | **0.3945** (39.45%) |
 
 *Tài nguyên đánh giá đã nộp trong repo:*
 - 10 ảnh eval kèm bounding box dự đoán được lưu tại: [assets/eval_predictions/visuals/](assets/eval_predictions/visuals/) (`drive_051.jpg` đến `drive_060.jpg`).
@@ -108,17 +108,15 @@ python3 tools/evaluate_annotations.py \
 ### Trả lời 4 câu hỏi phân tích của notebook:
 
 #### 1. Lớp nào có recall thấp nhất? Ảnh nào minh họa?
-- **Trả lời:** Lớp có recall thấp nhất là **`bus`** (Recall = **0.00** / 0%), kế tiếp là **`truck`** (Recall = **0.40** / 40%).
+- **Trả lời:** Lớp có recall thấp nhất là **`truck`** (Recall = **0.20** / 20%).
 - **Dữ kiện từ Ma trận nhầm lẫn chuẩn hóa (`assets/yolo26_runs/vehicle_eval/confusion_matrix_normalized.png`):**
-  - Đối với lớp `bus`: 0% số xe buýt được dự đoán đúng vào lớp `bus` (50% bị dự đoán nhầm thành `car`, và 50% bị dự đoán nhầm sang `van`).
-  - Đối với lớp `truck`: 40% số xe tải được nhận diện đúng lớp, trong khi 60% xe tải bị dự đoán nhầm thành `car`.
-  - Ngược lại, lớp `car` đạt recall xuất sắc **99%**, và lớp `van` đạt recall rất cao **83%**.
+  - Đối với lớp `truck`: 20% số xe tải được nhận diện đúng lớp, trong khi 80% xe tải bị dự đoán nhầm thành `car` do góc nhìn trên cao và xe tải nhỏ có cabin tương tự SUV/car.
+  - Ngược lại, lớp `car` đạt recall xuất sắc **97%**, lớp `van` đạt recall rất cao **83%**, và lớp `bus` sau khi sửa nhãn train đã được nhận diện đúng **100%** (1.00)!
 - **Nguyên nhân cốt lõi:**
-  - *Mất cân bằng lớp trầm trọng (Class Imbalance):* Trong 10 ảnh eval, `car` có tới 94 vật thể, trong khi `truck` chỉ có 5 vật thể và `bus` chỉ có vỏn vẹn 2 vật thể.
-  - *Dữ liệu huấn luyện hạn chế (50 ảnh):* Mô hình YOLO nhận được quá ít mẫu xe tải lớn và xe buýt trong tập train, dẫn đến xu hướng thiên vị (inductive bias) nghiêng hẳn về lớp đa số (`car`).
+  - *Mất cân bằng lớp (Class Imbalance):* Trong 10 ảnh eval, `car` có tới 94 vật thể, trong khi `truck` chỉ có 5 vật thể. Mẫu xe tải ít khiến mô hình thiên về lớp đa số (`car`).
+  - *Cải thiện từ Rework nhãn:* Việc sửa triệt để 2 xe buýt bị nhãn sai thành truck ở tập train đã giúp mô hình tách biệt hoàn toàn đặc trưng của `bus` ($AP_{50} = 55.4\%$, F1 peak $= 0.67$).
 - **Ảnh minh họa:**
-  - Trong ảnh [drive_051.jpg](assets/eval_predictions/visuals/drive_051.jpg), phương tiện cỡ lớn ở góc trên bên phải (khuất sau cột đèn) bị mô hình nhận nhầm thành `car 0.27`.
-  - Trong ảnh [drive_059.jpg](assets/eval_predictions/visuals/drive_059.jpg) và [drive_052.jpg](assets/eval_predictions/visuals/drive_052.jpg), xe tải bị bỏ sót (False Negative) hoặc bị phân loại thành `car`.
+  - Trong ảnh [drive_059.jpg](assets/eval_predictions/visuals/drive_059.jpg) và [drive_052.jpg](assets/eval_predictions/visuals/drive_052.jpg), xe tải bị phân loại nhầm thành `car`.
 
 #### 2. Nếu mAP50 cao nhưng mAP50–95 thấp, cần kiểm điều gì trên box?
 - **Trả lời:** Cần kiểm tra **độ ôm sát hình học (tightness) và độ chính xác của các cạnh viền bounding box**.
@@ -130,15 +128,15 @@ python3 tools/evaluate_annotations.py \
     3. *Lỗi clamp viền ảnh:* Với các xe bị cắt nửa thân ở rìa khung hình, nếu box dự đoán không tiếp xúc chuẩn xác vào mép ảnh `[0, 1]`, IoU sẽ giảm nhanh chóng khi nâng ngưỡng lên $0.75 - 0.95$.
 
 #### 3. Lỗi class nào có thể liên quan guideline? Dữ kiện nào hỗ trợ nhận xét?
-- **Trả lời:** Lỗi phân loại nhầm giữa **`bus` vs `van`** và giữa **`truck` vs `car`** (kèm theo nhầm lẫn `car` vs `truck`).
+- **Trả lời:** Lỗi phân loại nhầm giữa **`truck` vs `car`** và sự giao thoa nhẹ giữa **`van` vs `car`**.
 - **Dữ kiện hỗ trợ từ kết quả thực tế:**
   1. *Từ ma trận nhầm lẫn chuẩn hóa (`confusion_matrix_normalized.png`):*
-     - Có **50% xe `bus` trong tập eval bị mô hình nhận diện nhầm thành `van`** (do kích thước và ngoại hình xe minibus gần giống van thương mại).
-     - Có tới **60% số lượng xe `truck` bị dự đoán thành `car`** (do xe bán tải và xe tải nhỏ có cabin tương tự SUV/car).
-     - Ngược lại, lớp `van` sau rework nhãn đã được mô hình nhận diện chính xác đến **83%** (chỉ 8% nhầm sang car và 8% background).
+     - Có **80% số lượng xe `truck` trong tập eval bị mô hình dự đoán thành `car`** do góc nhìn trên cao khiến cabin xe tải nhỏ giống pickup truck/SUV (vốn thuộc `car` theo schema).
+     - Lớp `van` đạt độ chính xác cao **83%**, chỉ 8% nhầm sang bus và 8% background.
+     - Lớp `bus` nhận diện chính xác **100%**, minh chứng việc chuẩn hóa nhãn `bus` trong guideline đã loại bỏ triệt để nhầm lẫn giữa bus và truck.
   2. *Mối liên hệ trực tiếp với Guideline:*
-     - Từ góc nhìn camera CCTV trên cao nghiêng xuống (high-angle overhead view), hình dáng khí động học của xe minivan rất gần với SUV cỡ lớn (`car`), trong khi xe van thương mại thân dài (như Ford Transit, Iveco) rất dễ bị nhầm với xe buýt nhỏ (minibus).
-     - Guideline đã phân định ranh giới định lượng cụ thể: xe dưới 9 chỗ/pickup là `car`, xe thương mại unibody trần cao dạng hộp là `van`, xe chở khách lớn từ 10 chỗ trở lên là `bus`, xe tải thùng rời hạng nặng là `truck`. Sự cải thiện vượt bậc của lớp `van` (từ dự đoán sai trước đây lên 83% đúng) chứng minh sự nhất quán của guideline sau rework đã tác động trực tiếp giúp mô hình học chuẩn xác hơn.
+     - Từ góc nhìn camera CCTV trên cao nghiêng xuống, các dòng xe bán tải và xe tải nhỏ dễ gây phân vân. Guideline đã quy định: pickup truck chở người/hàng nhỏ thuộc `car`, chỉ xe tải hạng nặng chuyên dụng thùng rời mới thuộc `truck`.
+     - Tác động Data-Centric AI thể hiện rõ nét: Chỉ cần sửa nhãn nhầm lẫn ở tập train, mAP50 toàn hệ thống tăng từ $27.19\% \rightarrow 48.05\% \rightarrow \mathbf{63.06\%}$, F1 tăng lên xấp xỉ **$60\%$**.
 
 #### 4. Vì sao không dùng 10 ảnh eval để train? Vai trò validation của chúng trong notebook là gì?
 - **Trả lời:**
