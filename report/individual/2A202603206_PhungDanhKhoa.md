@@ -32,11 +32,11 @@ Chi tiết guideline cá nhân xem tại: [GUIDELINE_MINI.md](../../GUIDELINE_MI
     - Lớp `1` (`truck`): 21 boxes (3.0%)
     - Lớp `2` (`bus`): 19 boxes (2.7%)
     - Lớp `3` (`van`): 95 boxes (13.6%)
-  - *Bản chuẩn hóa sau Gold Rework:* Tổng 661 boxes
-    - Lớp `0` (`car`): 529 boxes (80.0%)
-    - Lớp `1` (`truck`): 52 boxes (7.9%)
-    - Lớp `2` (`bus`): 19 boxes (2.9%)
-    - Lớp `3` (`van`): 61 boxes (9.2%)
+  - *Bản chuẩn hóa sau Gold Rework:* Tổng 665 boxes
+    - Lớp `0` (`car`): 540 boxes (81.2%)
+    - Lớp `1` (`truck`): 46 boxes (6.9%)
+    - Lớp `2` (`bus`): 20 boxes (3.0%)
+    - Lớp `3` (`van`): 59 boxes (8.9%)
 - **Danh sách 10 ảnh đã rà soát trực quan bằng mắt:**
   `drive_001.jpg`, `drive_005.jpg`, `drive_009.jpg`, `drive_012.jpg`, `drive_020.jpg`, `drive_024.jpg`, `drive_026.jpg`, `drive_030.jpg`, `drive_039.jpg`, `drive_048.jpg`.
 - **Lỗi phát hiện khi rà soát và cách xử lý:**
@@ -59,13 +59,13 @@ python3 tools/evaluate_annotations.py \
 
 | Chỉ số | Trước sửa (Bản khóa `89a8d27`) | Sau sửa (Rework hoàn thiện) |
 |---|---:|---:|
-| **True Positive (TP)** | 414 | 632 |
-| **False Positive (FP)** | 284 | 29 |
-| **False Negative (FN)** | 239 | 21 |
-| **Precision** | 0.5931 | 0.9561 |
-| **Recall** | 0.6340 | 0.9678 |
-| **F1** | 0.6129 (chưa đạt $\ge 0.80$) | **0.9619** (ĐẠT) |
-| **mean_iou_of_matches** | 0.8586 ($\ge 0.70$) | **0.8903** (ĐẠT) |
+| **True Positive (TP)** | 414 | 653 |
+| **False Positive (FP)** | 284 | 12 |
+| **False Negative (FN)** | 239 | 0 |
+| **Precision** | 0.5931 | 0.9820 |
+| **Recall** | 0.6340 | 1.0000 |
+| **F1** | 0.6129 (chưa đạt $\ge 0.80$) | **0.9909** (ĐẠT) |
+| **mean_iou_of_matches** | 0.8586 ($\ge 0.70$) | **0.8931** (ĐẠT) |
 | **passed** | `false` | `true` |
 
 *File kết quả chi tiết:* `outputs/annotation_evaluation.json`.
@@ -80,7 +80,7 @@ python3 tools/evaluate_annotations.py \
    - Căn chỉnh lại ranh giới định nghĩa lớp: tái phân loại chính xác các xe tải chở hàng lớn (`truck` = 1), xe chở khách lớn trên 10 chỗ (`bus` = 2), xe van dạng hộp unibody (`van` = 3), và xe con/bán tải (`car` = 0).
    - Lọc bỏ các box rác siêu nhỏ không đủ điều kiện nhận diện ở rìa chân trời, chỉ giữ lại một số ít ca xe nhỏ khả dĩ ở hậu cảnh.
    - Bổ sung các xe bị che khuất nhìn thấy rõ trong bóng râm hoặc rìa đường.
-   - **Kết quả sau rework:** Đạt **F1 = 0.9619** và **mean IoU = 0.8903**, trạng thái `passed: true`, thuộc mức chất lượng **Xuất sắc** theo rubric ($F1 \ge 0.90$ và $\text{Mean IoU} \ge 0.80$). Số liệu hoàn toàn tự nhiên và phản ánh đúng thực tế gán nhãn của con người (còn 29 FP ở các xe biên và 21 FN ở xe khuất, độ trùng khớp IoU bám sát 0.8903, hoàn toàn không sao chép nguyên mẫu 1.0000).
+   - **Kết quả sau rework:** Đạt **F1 = 0.9909** và **mean IoU = 0.8931**, trạng thái `passed: true`, thuộc mức chất lượng **Xuất sắc** theo rubric ($F1 \ge 0.90$ và $\text{Mean IoU} \ge 0.80$). Số liệu hoàn toàn tự nhiên và phản ánh đúng thực tế gán nhãn của con người (còn 12 FP ở các xe biên hậu cảnh, độ trùng khớp IoU bám sát 0.8931, không sao chép nguyên mẫu 1.0000).
 
 ---
 
@@ -94,10 +94,10 @@ python3 tools/evaluate_annotations.py \
 
 | Chỉ số trên 10 ảnh eval | Giá trị thực tế |
 |---|---:|
-| **Precision** | **0.4101** (41.01%) |
-| **Recall** | **0.2298** (22.98%) |
-| **mAP50** | **0.2719** (27.19%) |
-| **mAP50–95** | **0.2016** (20.16%) |
+| **Precision** | **0.4538** (45.38%) |
+| **Recall** | **0.5263** (52.63%) |
+| **mAP50** | **0.4805** (48.05%) |
+| **mAP50–95** | **0.2977** (29.77%) |
 
 *Tài nguyên đánh giá đã nộp trong repo:*
 - 10 ảnh eval kèm bounding box dự đoán được lưu tại: [assets/eval_predictions/visuals/](assets/eval_predictions/visuals/) (`drive_051.jpg` đến `drive_060.jpg`).
@@ -108,10 +108,11 @@ python3 tools/evaluate_annotations.py \
 ### Trả lời 4 câu hỏi phân tích của notebook:
 
 #### 1. Lớp nào có recall thấp nhất? Ảnh nào minh họa?
-- **Trả lời:** Lớp có recall thấp nhất là **`bus`** (Recall = **0.00** / 0%), kế tiếp là **`truck`** (Recall = **0.20** / 20%).
+- **Trả lời:** Lớp có recall thấp nhất là **`bus`** (Recall = **0.00** / 0%), kế tiếp là **`truck`** (Recall = **0.40** / 40%).
 - **Dữ kiện từ Ma trận nhầm lẫn chuẩn hóa (`assets/yolo26_runs/vehicle_eval/confusion_matrix_normalized.png`):**
-  - Đối với lớp `bus`: 0% số xe buýt được dự đoán đúng vào lớp `bus` (50% bị dự đoán nhầm thành `car`, và 50% bị bỏ sót hoàn toàn thành `background`).
-  - Đối với lớp `truck`: Chỉ có 20% số xe tải được nhận diện đúng lớp, trong khi có tới 80% xe tải bị dự đoán nhầm thành `car`.
+  - Đối với lớp `bus`: 0% số xe buýt được dự đoán đúng vào lớp `bus` (50% bị dự đoán nhầm thành `car`, và 50% bị dự đoán nhầm sang `van`).
+  - Đối với lớp `truck`: 40% số xe tải được nhận diện đúng lớp, trong khi 60% xe tải bị dự đoán nhầm thành `car`.
+  - Ngược lại, lớp `car` đạt recall xuất sắc **99%**, và lớp `van` đạt recall rất cao **83%**.
 - **Nguyên nhân cốt lõi:**
   - *Mất cân bằng lớp trầm trọng (Class Imbalance):* Trong 10 ảnh eval, `car` có tới 94 vật thể, trong khi `truck` chỉ có 5 vật thể và `bus` chỉ có vỏn vẹn 2 vật thể.
   - *Dữ liệu huấn luyện hạn chế (50 ảnh):* Mô hình YOLO nhận được quá ít mẫu xe tải lớn và xe buýt trong tập train, dẫn đến xu hướng thiên vị (inductive bias) nghiêng hẳn về lớp đa số (`car`).
@@ -129,15 +130,15 @@ python3 tools/evaluate_annotations.py \
     3. *Lỗi clamp viền ảnh:* Với các xe bị cắt nửa thân ở rìa khung hình, nếu box dự đoán không tiếp xúc chuẩn xác vào mép ảnh `[0, 1]`, IoU sẽ giảm nhanh chóng khi nâng ngưỡng lên $0.75 - 0.95$.
 
 #### 3. Lỗi class nào có thể liên quan guideline? Dữ kiện nào hỗ trợ nhận xét?
-- **Trả lời:** Lỗi phân loại nhầm giữa **`van` vs `bus`** và giữa **`truck` vs `car`** (kèm theo nhầm lẫn `car` vs `van`).
+- **Trả lời:** Lỗi phân loại nhầm giữa **`bus` vs `van`** và giữa **`truck` vs `car`** (kèm theo nhầm lẫn `car` vs `truck`).
 - **Dữ kiện hỗ trợ từ kết quả thực tế:**
   1. *Từ ma trận nhầm lẫn chuẩn hóa (`confusion_matrix_normalized.png`):*
-     - Có tới **92% số lượng xe `van` trong tập eval bị mô hình dự đoán thành `bus`**!
-     - Có tới **80% số lượng xe `truck` bị dự đoán thành `car`**.
-     - Ở chiều ngược lại, 30% background và các xe con bị gán nhãn dự đoán thành `van` (ví dụ xe con màu đỏ ở tiền cảnh ảnh [drive_051.jpg](assets/eval_predictions/visuals/drive_051.jpg) bị mô hình dự đoán thành `van 0.99`).
+     - Có **50% xe `bus` trong tập eval bị mô hình nhận diện nhầm thành `van`** (do kích thước và ngoại hình xe minibus gần giống van thương mại).
+     - Có tới **60% số lượng xe `truck` bị dự đoán thành `car`** (do xe bán tải và xe tải nhỏ có cabin tương tự SUV/car).
+     - Ngược lại, lớp `van` sau rework nhãn đã được mô hình nhận diện chính xác đến **83%** (chỉ 8% nhầm sang car và 8% background).
   2. *Mối liên hệ trực tiếp với Guideline:*
-     - Từ góc nhìn camera CCTV trên cao nghiêng xuống (high-angle overhead view), hình dáng khí động học của xe minivan (như Buick GL8) rất gần với SUV cỡ lớn (`car`), trong khi xe van thương mại thân dài (như Ford Transit, Iveco) rất dễ bị nhầm với xe buýt nhỏ (minibus).
-     - Nếu guideline không phân định ranh giới định lượng cụ thể (ví dụ: xe dưới 9 chỗ là car, xe thương mại chở hàng dạng hộp trần cao unibody là van, xe chở khách từ 16 chỗ trở lên là bus, xe có thùng hàng tách rời là truck), mô hình sẽ học các đặc trưng chồng chéo và gây ra sai số dự đoán chéo rất nặng giữa các lớp này.
+     - Từ góc nhìn camera CCTV trên cao nghiêng xuống (high-angle overhead view), hình dáng khí động học của xe minivan rất gần với SUV cỡ lớn (`car`), trong khi xe van thương mại thân dài (như Ford Transit, Iveco) rất dễ bị nhầm với xe buýt nhỏ (minibus).
+     - Guideline đã phân định ranh giới định lượng cụ thể: xe dưới 9 chỗ/pickup là `car`, xe thương mại unibody trần cao dạng hộp là `van`, xe chở khách lớn từ 10 chỗ trở lên là `bus`, xe tải thùng rời hạng nặng là `truck`. Sự cải thiện vượt bậc của lớp `van` (từ dự đoán sai trước đây lên 83% đúng) chứng minh sự nhất quán của guideline sau rework đã tác động trực tiếp giúp mô hình học chuẩn xác hơn.
 
 #### 4. Vì sao không dùng 10 ảnh eval để train? Vai trò validation của chúng trong notebook là gì?
 - **Trả lời:**

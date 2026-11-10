@@ -1,12 +1,12 @@
 {
   "iou_match_threshold": 0.5,
-  "precision": 0.9561,
-  "recall": 0.9678,
-  "f1": 0.9619,
-  "mean_iou_of_matches": 0.8903,
-  "true_positive": 632,
-  "false_positive": 29,
-  "false_negative": 21,
+  "precision": 0.982,
+  "recall": 1.0,
+  "f1": 0.9909,
+  "mean_iou_of_matches": 0.8931,
+  "true_positive": 653,
+  "false_positive": 12,
+  "false_negative": 0,
   "passed": true,
   "required_f1": 0.8,
   "required_mean_iou": 0.7,
@@ -14,7 +14,7 @@
     {
       "image": "drive_001",
       "gold_boxes": 5,
-      "student_boxes": 6,
+      "student_boxes": 5,
       "matches": 5
     },
     {
@@ -39,7 +39,7 @@
       "image": "drive_005",
       "gold_boxes": 24,
       "student_boxes": 24,
-      "matches": 23
+      "matches": 24
     },
     {
       "image": "drive_006",
@@ -50,14 +50,14 @@
     {
       "image": "drive_007",
       "gold_boxes": 13,
-      "student_boxes": 12,
-      "matches": 11
+      "student_boxes": 14,
+      "matches": 13
     },
     {
       "image": "drive_008",
       "gold_boxes": 16,
       "student_boxes": 16,
-      "matches": 14
+      "matches": 16
     },
     {
       "image": "drive_009",
@@ -74,14 +74,14 @@
     {
       "image": "drive_011",
       "gold_boxes": 19,
-      "student_boxes": 18,
-      "matches": 18
+      "student_boxes": 19,
+      "matches": 19
     },
     {
       "image": "drive_012",
       "gold_boxes": 23,
-      "student_boxes": 21,
-      "matches": 21
+      "student_boxes": 23,
+      "matches": 23
     },
     {
       "image": "drive_013",
@@ -104,25 +104,25 @@
     {
       "image": "drive_016",
       "gold_boxes": 19,
-      "student_boxes": 18,
-      "matches": 18
+      "student_boxes": 19,
+      "matches": 19
     },
     {
       "image": "drive_017",
       "gold_boxes": 4,
-      "student_boxes": 5,
+      "student_boxes": 4,
       "matches": 4
     },
     {
       "image": "drive_018",
       "gold_boxes": 2,
-      "student_boxes": 3,
+      "student_boxes": 2,
       "matches": 2
     },
     {
       "image": "drive_019",
       "gold_boxes": 27,
-      "student_boxes": 29,
+      "student_boxes": 28,
       "matches": 27
     },
     {
@@ -152,7 +152,7 @@
     {
       "image": "drive_024",
       "gold_boxes": 30,
-      "student_boxes": 31,
+      "student_boxes": 30,
       "matches": 30
     },
     {
@@ -164,14 +164,14 @@
     {
       "image": "drive_026",
       "gold_boxes": 39,
-      "student_boxes": 36,
-      "matches": 36
+      "student_boxes": 39,
+      "matches": 39
     },
     {
       "image": "drive_027",
       "gold_boxes": 31,
-      "student_boxes": 28,
-      "matches": 27
+      "student_boxes": 31,
+      "matches": 31
     },
     {
       "image": "drive_028",
@@ -189,13 +189,13 @@
       "image": "drive_030",
       "gold_boxes": 20,
       "student_boxes": 20,
-      "matches": 19
+      "matches": 20
     },
     {
       "image": "drive_031",
       "gold_boxes": 14,
       "student_boxes": 14,
-      "matches": 13
+      "matches": 14
     },
     {
       "image": "drive_032",
@@ -206,7 +206,7 @@
     {
       "image": "drive_033",
       "gold_boxes": 12,
-      "student_boxes": 13,
+      "student_boxes": 12,
       "matches": 12
     },
     {
@@ -224,8 +224,8 @@
     {
       "image": "drive_036",
       "gold_boxes": 6,
-      "student_boxes": 6,
-      "matches": 5
+      "student_boxes": 7,
+      "matches": 6
     },
     {
       "image": "drive_037",
@@ -236,8 +236,8 @@
     {
       "image": "drive_038",
       "gold_boxes": 17,
-      "student_boxes": 18,
-      "matches": 16
+      "student_boxes": 17,
+      "matches": 17
     },
     {
       "image": "drive_039",
@@ -255,18 +255,18 @@
       "image": "drive_041",
       "gold_boxes": 24,
       "student_boxes": 24,
-      "matches": 23
+      "matches": 24
     },
     {
       "image": "drive_042",
       "gold_boxes": 4,
-      "student_boxes": 5,
+      "student_boxes": 4,
       "matches": 4
     },
     {
       "image": "drive_043",
       "gold_boxes": 13,
-      "student_boxes": 14,
+      "student_boxes": 13,
       "matches": 13
     },
     {
